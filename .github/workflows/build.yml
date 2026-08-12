@@ -1,0 +1,40 @@
+name: Build SteamFuse
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Qt6 dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            qt6-base-dev \
+            qt6-tools-dev \
+            qt6-tools-dev-tools \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libxkbcommon-x11-0
+
+      - name: Build with qmake6
+        run: |
+          qmake6 steamfuse.pro
+          make -j$(nproc)
+
+      - name: List build artifacts (debug)
+        run: ls -la
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SteamFuse
+          path: SteamFuse
